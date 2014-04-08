@@ -14,6 +14,7 @@ var dat = require('dat-gui');
 
 var tmp = new Vector2();
 var tmp2 = new Vector2();
+var raf = require('raf.js');
 
 $(function() {
 	var canvas = $("<canvas>").appendTo(document.body)[0];

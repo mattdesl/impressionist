@@ -8,7 +8,8 @@
     "simplex-noise": "^2.1.1",
     "vecmath": "^0.1.0",
     "interpolation": "0.0.0",
-    "cam3d": "^1.0.1"
+    "cam3d": "^1.0.1",
+    "raf.js": "0.0.3"
   },
   "devDependencies": {
     "browserify": "~3.33.0",
