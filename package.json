@@ -1,0 +1,42 @@
+{
+  "name": "impressionist",
+  "version": "0.0.0",
+  "description": "",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "klasse": "~1.0.8",
+    "simplex-noise": "^2.1.1",
+    "vecmath": "^0.1.0",
+    "interpolation": "0.0.0",
+    "cam3d": "^1.0.1"
+  },
+  "devDependencies": {
+    "browserify": "~3.33.0",
+    "browserify-shim": "~3.3.2",
+    "gulp-browserify": "~0.5.0",
+    "gulp-plumber": "~0.5.6",
+    "gulp": "~3.5.6",
+    "gulp-util": "~2.2.14",
+    "gulp-livereload": "~1.2.0",
+    "gulp-rename": "~1.2.0",
+    "brfs": "^1.0.0",
+    "gulp-uglify": "^0.2.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "tweenlite": "global:TweenLite",
+    "pixi": "global:PIXI",
+    "jquery": "global:$",
+    "dat-gui": "global:dat",
+    "stats": "global:Stats"
+  }
+}

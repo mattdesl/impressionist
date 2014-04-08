@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			div#text {
+				position: absolute;
+				top: 550px;
+				left: 20px;
+				color: #ebebeb;
+				font-family: 'Lato', sans-serif;
+				font-size: 14px;
+				line-height: 9px;
+			}
+
+			a {
+				text-decoration: none;
+				color: #357d9b;
+				outline: 0;
+			}
+			a:hover {
+				text-decoration: underline;
+				color: #3696be;
+			}	
+
+			.overlay {
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+
+			.noise {
+				background: url('img/noise.png') repeat;
+			}
+			.original {
+				z-index: 10000;
+			}
+		</style>
+	</head>
+	<body>
+
+		<!-- 
+			this source definitely needs a clean-up...
+		 -->
+		<script src="bower_components/greensock/src/minified/TweenLite.min.js"></script>
+		<!-- <script src="bower_components/greensock/src/minified/plugins/CSSPlugin.min.js"></script> -->
+		<script src="bower_components/greensock/src/minified/easing/EasePack.min.js"></script>
+		<!--<script src="bower_components/stats.js/build/stats.min.js"></script>-->
+		<script src="bower_components/jquery/dist/jquery.min.js"></script>
+
+		<!--<script src="js/vendor/pixi.dev.js"></script>-->
+		<script src="js/vendor/dat.gui.min.js"></script>
+		<!-- <link rel="stylesheet" type="text/css" href="css/dat-gui-light-theme.css"> -->
+		<script src="js/bundle.js"></script>
+
+		<div id="text">
+			<p>generative painting in the impressionist style, using perlin noise for motion (work in progress)</p>
+			<p>follow me on twitter: <a href="https://twitter.com/mattdesl" target="_blank">@mattdesl</a></p>
+		</div>
+	</body>
+</html>

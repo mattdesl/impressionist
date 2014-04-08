@@ -1,0 +1,19 @@
+{
+  "name": "impressionist",
+  "version": "0.0.0",
+  "authors": [
+    "mattdesl <dave.des@gmail.com>"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.0",
+    "greensock": "~1.11.5",
+    "stats.js": "*"
+  }
+}
