@@ -64,6 +64,7 @@ $(function() {
 		saturation: 1.0,
 		lightness: 1.0,
 		grain: .7,
+		darken: true,
 
 		background: '#2f2f2f',
 		clear: clear,
@@ -205,6 +206,7 @@ $(function() {
 
 		var color = gui.addFolder('color');
 		color.add(options, 'useOriginal');
+		color.add(options, 'darken');
 		color.add(options, 'hue', 0, 360);
 		color.add(options, 'saturation', 0, 1.0);
 		color.add(options, 'lightness', 0, 1.0);
@@ -323,13 +325,13 @@ $(function() {
 			var val = 0.2126 * (red/255) + 0.7152 * (green/255) + 0.0722 * (blue/255);
 			
 
-			var brightness = val;
+			var brightness = options.darken ? val : 1.0;
 			
 			// context.strokeStyle = 'hsl('+lerp(alpha, alpha-100, rot)+', '+(1-red/255)*lerp(0.7, 1, rot)*100+'%, '+lerp(0.45, 0.55, rot)*100+'%)';
 			if (options.useOriginal)
 				context.strokeStyle = 'rgb('+~~(red*brightness)+', '+~~(green*brightness)+', '+~~(blue*brightness)+')';
 			else
-				context.strokeStyle = 'hsl('+lerp(alpha, alpha-100, rot)+', '+(1-val)*lerp(0.2, 0.9, rot)*options.saturation*100+'%, '+(val)*lerp(0.45, 1, rot)*options.lightness*100+'%)';
+				context.strokeStyle = 'hsl('+lerp(alpha, alpha-100, rot)+', '+(1-val)*lerp(0.2, 0.9, rot)*options.saturation*100+'%, '+(val)*lerp(0.45, 1, rot)*brightness*options.lightness*100+'%)';
 
 			var s = 2;
 
