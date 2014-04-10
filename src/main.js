@@ -143,7 +143,10 @@ $(function() {
 
 			options.painting = false;
 			previewContext.drawImage(canvas, 0, 0, previewWidth, previewHeight);
-			TweenLite.delayedCall(0.5, animateIn.bind(this));
+			TweenLite.delayedCall(0.5, function() {
+				options.painting = true;
+				animateIn();
+			}.bind(this));
 		}).on('touchmove', function(ev) {
 			ev.preventDefault()
 		});
@@ -200,7 +203,6 @@ $(function() {
 	}
 
 	function animateIn() {
-		options.painting = true;
 		TweenLite.killTweensOf(options);
 		updateAnimation();
 
