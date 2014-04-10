@@ -152,7 +152,9 @@ $(function() {
 		});
 
 	}
-
+	if (window.devicePixelRatio === 2) {
+		$('div.noise').css("background-size", "128px 128px");
+	}
 
 	function handleImageLoad() {
 		imagePixels = imagedata.getImageData(image).data;
