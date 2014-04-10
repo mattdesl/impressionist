@@ -14,8 +14,8 @@ gulp.task('bundle', function() {
             debug: true,
             transform: ['browserify-shim', 'brfs']
         }))
-        .pipe(uglify())
-        .pipe(rename('bundle.js'))
+        // .pipe(uglify())
+        .pipe(rename('bundle2.js'))
         .pipe(gulp.dest('app/js'))
         .pipe(livereload());
 });

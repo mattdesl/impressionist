@@ -16,12 +16,36 @@ var tmp = new Vector2();
 var tmp2 = new Vector2();
 var raf = require('raf.js');
 
-$(function() {
-	var canvas = $("<canvas>").appendTo(document.body)[0];
 
+//polyfill
+if (!navigator.getUserMedia)
+    navigator.getUserMedia = navigator.getUserMedia 
+                        || navigator.webkitGetUserMedia 
+                        || navigator.mozGetUserMedia 
+                        || navigator.msGetUserMedia;
+if (!window.URL)
+    window.URL = window.URL 
+                    || window.webkitURL 
+                    || window.mozURL 
+                    || window.msURL;
+
+
+$(function() {
+	// var canvas = $("<canvas>").appendTo(document.body)[0];
+	var canvas = $("<canvas>")[0];
 	var width = 900,
 		height = 535;
+
+	var minimal = true;
 	
+	var previewCanvas = $("<canvas>").appendTo(document.body)[0],
+		previewWidth = Math.max(256, ~~(width/1)),
+		previewHeight = ~~(previewWidth * 1/(width/height)),
+		previewContext = previewCanvas.getContext("2d");
+
+	previewCanvas.width = previewWidth;
+	previewCanvas.height = previewHeight;
+
 	canvas.width = width;
 	canvas.height = height;
 
@@ -37,7 +61,7 @@ $(function() {
 
 	var image = new Image();
 	image.onload = handleImageLoad;
-	image.src = "img/skyline2.png";
+	image.src = "img/sun.png";
 
 
 	var imagePixels;
@@ -63,24 +87,28 @@ $(function() {
 		hue: 70,
 		saturation: 1.0,
 		lightness: 1.0,
-		grain: .7,
+		grain: .5,
 
-		background: '#2f2f2f',
+		background: '#f1f0e2',
 		clear: clear,
 		animate: animateIn,
 		viewOriginal: false,
+		exportImage: saveImage.bind(this)
 	};
 
 	var noiseOverlay = $('<div>').appendTo(document.body).addClass('noise overlay').css({
-		width: width,
-		height: height,
+		width: previewWidth,
+		height: previewHeight,
 		opacity: options.grain*0.2
 	});
-	$(document.body).css('background', options.background);
+	$(document.body).css('background', '#252525');
 
-	$(image).appendTo(document.body).css({
+	var originalImage = $(image).clone().appendTo(document.body).css({
 		visibility: 'hidden'
-	}).addClass('overlay original');
+	}).addClass('overlay original').css({
+		width: previewWidth,
+		height: previewHeight
+	});
 
 	
 	var gui;
@@ -90,10 +118,24 @@ $(function() {
 	var particles = [],
 		count = 500,
 		step = 0,
-		time = 0;
+		time = 0,
+		mouse = new Vector2();
+
+	var video, playing=false;
+	loadVideo();
+
+	var startTime = Date.now(), webcamTimer = 0,
+		webcamDelay = 500;
+
 	setupParticles();
 
 	animateIn();
+
+	if (minimal) {
+		$('#text').html('generative painting in the impressionist style<p>by Matt DesLauriers</p>');
+		$('.dg.ac').hide();
+	}
+
 
 	function handleImageLoad() {
 		imagePixels = imagedata.getImageData(image).data;
@@ -118,6 +160,29 @@ $(function() {
 		}
 	}
 
+	function saveImage() {
+		// options.painting = false;
+
+		// for (var k in gui.__folders.canvas.__controllers) {
+		// 	gui.__folders.canvas.__controllers[k].updateDisplay();
+		// }
+		
+		var dataURL = canvas.toDataURL("image/png");
+
+		var displayWidth = width,
+			displayHeight = height;
+		var imageWindow = window.open("", "fractalLineImage",
+                              "left=0,top=0,width="+800+",height="+500+",toolbar=0,resizable=0");
+		imageWindow.document.write("<title>Export Image</title>")
+		imageWindow.document.write("<img id='exportImage'"
+		                             + " alt=''"
+		                             + " height='" + displayHeight + "'"
+		                             + " width='"  + displayWidth  + "'"
+		                             + " style='position:absolute;left:0;top:0'/>");
+		imageWindow.document.close();
+		var exportImage = imageWindow.document.getElementById("exportImage");
+		exportImage.src = dataURL;
+	}
 
 	function animateIn() {
 		TweenLite.killTweensOf(options);
@@ -127,13 +192,20 @@ $(function() {
 		// 	grain: 1.0,
 		// 	onUpdate: updateGrain.bind(this),
 		// });
+	
+		animateIn2();
+	}
 
+
+	function animateIn2() {
+		var start = 0.0;
 		TweenLite.fromTo(options, 1.0, {
-			thickness: 30,
+			thickness: 40,
+
 		}, {
-			thickness: 20,
+			thickness: 10,
 			ease: Expo.easeOut,
-			delay: 2.0,
+			delay: start+2.0,
 		})
 		TweenLite.fromTo(options, 3.0, {
 			length: 23,
@@ -144,24 +216,32 @@ $(function() {
 		}, {
 			life: 0.5,
 			alpha: 0.2,
-			length: 70,
+			length: 90,
 			speed: 0.6,
-			delay: 1.0,
+			delay: start+1.0,
 			// ease: Expo.easeOut,
 			onUpdate: updateAnimation.bind(this)
 		});
 		TweenLite.to(options, 3.0, {
-			thickness: 7.0,
-			length: 30,
+			thickness: 5.0,
+			length: 40,
 			// onComplete: function() {
 			// 	options.round = true;
 			// },
-			delay: 4.0,
+			delay: start+4.0,
 		});
 		TweenLite.to(options, 1.0, {
-			length: 10,
-			delay: 6.0,
+			length: 30,
+			delay: start+6.0,
 		})
+		TweenLite.to(options, 1.0, {
+			thickness: 3,
+			delay: start+7.0,
+		});
+		TweenLite.to(options, 1.0, {
+			thickness: 3,
+			delay: start+7.0,
+		});
 	}
 
 	function setupParticles() {
@@ -193,15 +273,15 @@ $(function() {
 			setupParticles();
 		});
 
-		stroke.add(options, 'length', 0.1, 200.0);
-		stroke.add(options, 'thickness', 0.1, 30.0);
+		stroke.add(options, 'length', 0.1, 100.0);
+		stroke.add(options, 'thickness', 0.1, 50.0);
 		stroke.add(options, 'life', 0.0, 1.0);
 		stroke.add(options, 'speed', 0.0, 1.0);
 		stroke.add(options, 'alpha', 0.0, 1.0);
 		stroke.add(options, 'angle', 0.0, 2.0);
 		stroke.add(options, 'round');
 		stroke.add(options, 'motion');
-		stroke.open();
+		// stroke.open();
 
 		var color = gui.addFolder('color');
 		color.add(options, 'useOriginal');
@@ -216,10 +296,11 @@ $(function() {
 		canvas.add(options, 'painting');
 		canvas.addColor(options, 'background');
 		canvas.add(options, 'viewOriginal').onFinishChange(function(value) {
-			$(image).css('visibility', value ? 'visible' : 'hidden');
+			originalImage.css('visibility', value ? 'visible' : 'hidden');
 		});
 		canvas.add(options, 'animate');
 		canvas.add(options, 'clear');
+		canvas.add(options, 'exportImage');
 		canvas.open();
 
 
@@ -238,16 +319,66 @@ $(function() {
 		setupParticles();
 	}
 
+    function loadVideo() {
+    	console.log("TRYING");
+        if (navigator.getUserMedia && window.URL && window.URL.createObjectURL) {
+        	console.log("HELLOOOO");
+            //create a <video> element
+            video = document.createElement("video");
+            video.setAttribute("autoplay", "");
+            video.width = width;
+            video.height = height;
+            video.style.background = "black";
+            // document.body.appendChild(video);
+
+            video.addEventListener("play", function() {
+            	playing = true;
+            	clear();
+            	animateIn();
+            }, true);
+
+            console.log("GETTING VIDEO");
+            // navigator.getUserMedia({video: true}, function(stream) {
+            //     video.src = window.URL.createObjectURL(stream);
+            //     hasVideo = true;
+
+            // }, function() {
+            //     //err handling...
+            // });
+
+        }
+    }
+
+	window.addEventListener("mousemove", function(ev) {
+		mouse.set(ev.clientX, ev.clientY);
+	});
 
 
+    var strokeCount = 0;
 	function render() {
 		requestAnimationFrame(render);
+
+		var now = Date.now();
+		var delta = now - startTime;
+		startTime = now;
+		
 		time+=0.1;
 		step++;
 
 
+
 		if (!options.painting )
 			return;
+
+		webcamTimer += delta;
+		if (webcamTimer > webcamDelay && playing) {
+			// console.log("TEST");
+			webcamTimer = 0;
+			imagePixels = imagedata.getImageData(video).data;
+		}
+
+		// if (step % 100 === 0) 
+		// 	console.log(strokeCount);
 
 		if (options.shift && step % 20 === 0) {
 			noise.offset+=.01;
@@ -311,7 +442,11 @@ $(function() {
 			var rot = (n/2+0.5);
 			var hue = (noise.offset % 50)/50 * rot;
 
-			var pxIndex = (px + (py * imageWidth))*4;
+			var imgX = px,
+				imgY = py;
+			// var imgX =px-(mouse.x),
+			// 	imgY = py-(mouse.y);
+			var pxIndex = (imgX + (imgY * imageWidth))*4;
 			var red = imagePixels[ pxIndex ],
 				green = imagePixels[ pxIndex + 1],
 				blue = imagePixels[pxIndex + 2];
@@ -322,8 +457,8 @@ $(function() {
 			// CIE luminance for the RGB
 			var val = 0.2126 * (red/255) + 0.7152 * (green/255) + 0.0722 * (blue/255);
 			
-
-			var brightness = val;
+			
+			var brightness = 1;
 			
 			// context.strokeStyle = 'hsl('+lerp(alpha, alpha-100, rot)+', '+(1-red/255)*lerp(0.7, 1, rot)*100+'%, '+lerp(0.45, 0.55, rot)*100+'%)';
 			if (options.useOriginal)
@@ -355,5 +490,9 @@ $(function() {
 			
 		}
 
+		strokeCount += particles.length;
+
+
+		previewContext.drawImage(canvas, 0, 0, previewWidth, previewHeight);
 	}
 });
