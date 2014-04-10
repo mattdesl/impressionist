@@ -151,6 +151,9 @@ $(function() {
 			ev.preventDefault()
 		});
 
+		window.addEventListener("orientationchange", function() {
+			window.scrollTo(0, 0);
+		})
 	}
 	if (window.devicePixelRatio === 2) {
 		$('div.noise').css("background-size", "128px 128px");
