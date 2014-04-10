@@ -61,7 +61,7 @@ $(function() {
 
 	var image = new Image();
 	image.onload = handleImageLoad;
-	image.src = "img/sun.png";
+	image.src = minimal ? "img/skyline2.png" : "img/sun.png";
 
 
 	var imagePixels;
@@ -87,7 +87,8 @@ $(function() {
 		hue: 70,
 		saturation: 1.0,
 		lightness: 1.0,
-		grain: .5,
+		grain: minimal ? .5 : .7,
+		darken: !minimal,
 
 		background: '#f1f0e2',
 		clear: clear,
@@ -193,9 +194,56 @@ $(function() {
 		// 	onUpdate: updateGrain.bind(this),
 		// });
 	
-		animateIn2();
+		if (minimal) //god this code is getting nasty..
+            animateIn2();
+        else
+            animateIn1();
 	}
 
+    function animateIn1() {
+		TweenLite.killTweensOf(options);
+		updateAnimation();
+
+		// TweenLite.to(options, 1.0, {
+		// 	grain: 1.0,
+		// 	onUpdate: updateGrain.bind(this),
+		// });
+
+		TweenLite.fromTo(options, 1.0, {
+			thickness: 30,
+		}, {
+			thickness: 20,
+			ease: Expo.easeOut,
+			delay: 2.0,
+		})
+		TweenLite.fromTo(options, 3.0, {
+			length: 23,
+			alpha: 0.3,
+			life: 0.7,
+			// round: true,
+			speed: 1,
+		}, {
+			life: 0.5,
+			alpha: 0.2,
+			length: 70,
+			speed: 0.6,
+			delay: 1.0,
+			// ease: Expo.easeOut,
+			onUpdate: updateAnimation.bind(this)
+		});
+		TweenLite.to(options, 3.0, {
+			thickness: 7.0,
+			length: 30,
+			// onComplete: function() {
+			// 	options.round = true;
+			// },
+			delay: 4.0,
+		});
+		TweenLite.to(options, 1.0, {
+			length: 10,
+			delay: 6.0,
+		})
+	}
 
 	function animateIn2() {
 		var start = 0.0;
@@ -281,10 +329,11 @@ $(function() {
 		stroke.add(options, 'angle', 0.0, 2.0);
 		stroke.add(options, 'round');
 		stroke.add(options, 'motion');
-		// stroke.open();
+		stroke.open();
 
 		var color = gui.addFolder('color');
 		color.add(options, 'useOriginal');
+		color.add(options, 'darken');
 		color.add(options, 'hue', 0, 360);
 		color.add(options, 'saturation', 0, 1.0);
 		color.add(options, 'lightness', 0, 1.0);
@@ -320,9 +369,9 @@ $(function() {
 	}
 
     function loadVideo() {
-    	console.log("TRYING");
+    	//console.log("TRYING");
         if (navigator.getUserMedia && window.URL && window.URL.createObjectURL) {
-        	console.log("HELLOOOO");
+        	//console.log("HELLOOOO");
             //create a <video> element
             video = document.createElement("video");
             video.setAttribute("autoplay", "");
@@ -338,6 +387,8 @@ $(function() {
             }, true);
 
             console.log("GETTING VIDEO");
+
+            //disabled for now.
             // navigator.getUserMedia({video: true}, function(stream) {
             //     video.src = window.URL.createObjectURL(stream);
             //     hasVideo = true;
@@ -348,7 +399,7 @@ $(function() {
 
         }
     }
-
+//more failed experiments..
 	window.addEventListener("mousemove", function(ev) {
 		mouse.set(ev.clientX, ev.clientY);
 	});
@@ -457,14 +508,14 @@ $(function() {
 			// CIE luminance for the RGB
 			var val = 0.2126 * (red/255) + 0.7152 * (green/255) + 0.0722 * (blue/255);
 			
-			
-			var brightness = 1;
+
+			var brightness = options.darken ? val : 1.0;
 			
 			// context.strokeStyle = 'hsl('+lerp(alpha, alpha-100, rot)+', '+(1-red/255)*lerp(0.7, 1, rot)*100+'%, '+lerp(0.45, 0.55, rot)*100+'%)';
 			if (options.useOriginal)
 				context.strokeStyle = 'rgb('+~~(red*brightness)+', '+~~(green*brightness)+', '+~~(blue*brightness)+')';
 			else
-				context.strokeStyle = 'hsl('+lerp(alpha, alpha-100, rot)+', '+(1-val)*lerp(0.2, 0.9, rot)*options.saturation*100+'%, '+(val)*lerp(0.45, 1, rot)*options.lightness*100+'%)';
+				context.strokeStyle = 'hsl('+lerp(alpha, alpha-100, rot)+', '+(1-val)*lerp(0.2, 0.9, rot)*options.saturation*100+'%, '+(val)*lerp(0.45, 1, rot)*brightness*options.lightness*100+'%)';
 
 			var s = 2;
 
