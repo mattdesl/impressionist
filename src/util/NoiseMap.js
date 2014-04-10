@@ -14,14 +14,13 @@ var rand = undefined;
 //we can use a deterministic random generator if we want...
 //rand = new PRNG();
 
-var simplex = new SimplexNoise(rand);
-
 var NoiseMap = new Class({
 
     initialize: function(size) {
         if (!size)
             throw "no size specified to NoiseMap";
 
+        this.simplex = new SimplexNoise(rand);
         this.size = size;   
         this.scale = 20;
         this.offset = 0;
@@ -42,7 +41,11 @@ var NoiseMap = new Class({
         var z = r * Math.cos(azw);
         var w = r * Math.sin(azw);
 
-        return simplex.noise4D(cx + x, cy + y, cz + z, cw + w);
+        return this.simplex.noise4D(cx + x, cy + y, cz + z, cw + w);
+    },
+
+    randomize: function() {
+        this.simplex = new SimplexNoise(rand);
     },
 
     generate: function() {
@@ -59,7 +62,7 @@ var NoiseMap = new Class({
             if (seamless)
                 noiseMap[i] = this.seamlessNoise(x/noiseSize*zoom + noiseOff, y/noiseSize*zoom + noiseOff, zoom, 0, 0, 0, 0);
             else
-                noiseMap[i] = simplex.noise3D(x/noiseSize * zoom, y/noiseSize * zoom, noiseOff);
+                noiseMap[i] = this.simplex.noise3D(x/noiseSize * zoom, y/noiseSize * zoom, noiseOff);
         }
     },
 
@@ -70,6 +73,5 @@ var NoiseMap = new Class({
             return sampling.nearest(this.data, this.size, x, y);
     },
 });
-
 
 module.exports = NoiseMap;

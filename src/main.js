@@ -143,6 +143,8 @@ $(function() {
 
 			options.painting = false;
 			previewContext.drawImage(canvas, 0, 0, previewWidth, previewHeight);
+			noise.randomize();
+			options.scale = Math.random()*2+1
 			TweenLite.delayedCall(0.5, function() {
 				options.painting = true;
 				animateIn();
