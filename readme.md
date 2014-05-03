@@ -1,2 +1,2 @@
-
-This project uses gulp and browserify-shim to do its evil dirty work.
+Details:  
+https://medium.com/p/afa98ccb97da
